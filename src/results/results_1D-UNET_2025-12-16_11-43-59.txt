@@ -1,0 +1,39 @@
+
+================================================================================
+AFIB Detection Model Results
+================================================================================
+Model Name:        1D-UNET
+Sample Rate:       500.0 Hz (Original: 500 Hz, Downsample: 1x)
+Batch Size:        32
+Learning Rate:     0.001
+Num Epochs:        30
+Device:            cpu
+Timestamp:         2025-12-16_11-43-59
+
+================================================================================
+Test Set Metrics
+================================================================================
+Accuracy (Acc):    0.9831
+F1-Score (F1):     0.9832
+Precision (Pre):   0.9778
+Recall (Rec):      0.9888
+Specificity (Spec):0.9775
+Matthews Corr Coef:0.9664
+ROC-AUC (AUC):     0.9989
+
+Test Loss:         0.0392
+
+================================================================================
+Confusion Matrix
+================================================================================
+                  Predicted
+               Non-AFIB  AFIB
+Actual Non-AFIB     174       4
+       AFIB           2     176
+
+TP (True Positive):   176
+TN (True Negative):   174
+FP (False Positive):  4
+FN (False Negative):  2
+
+================================================================================
