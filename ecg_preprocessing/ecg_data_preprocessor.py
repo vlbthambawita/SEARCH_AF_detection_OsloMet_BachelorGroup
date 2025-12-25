@@ -451,11 +451,20 @@ def prepare_dataset(
                     [all_splits[i], all_pids[i], all_rids[i], all_y[i], fs, i]
                 )
 
-         # Save data.pt only if Fold Mode
+        # Reshape if not correcect (N, C, T)
+
+        def fix_shape(X_list):
+            X_np = np.stack(X_list)  # (N, T, C) or (N, C, T)
+            if X_np.ndim == 3 and X_np.shape[1] > X_np.shape[2]:
+                X_np = np.transpose(X_np, (0, 2, 1))  # -> (N, C, T)
+            return torch.tensor(X_np).contiguous()
+        
+        # Save data.pt only if Fold Mode
         if folds is not None:
+            X_tensor = fix_shape(all_X)
             torch.save(
                 {
-                    "X": torch.tensor(np.stack(all_X)),
+                    "X": X_tensor,
                     "y": torch.tensor(all_y),
                     "record_ids": all_rids,
                     "patient_ids": all_pids,
@@ -474,9 +483,11 @@ def prepare_dataset(
                     logger.warning(f"[{fs}Hz] {split}.pt is empty — skipping")
                     continue
 
+                X_tensor = fix_shape(X)
+
                 torch.save(
                     {
-                        "X": torch.tensor(np.stack(X)),
+                        "X": X_tensor,
                         "y": torch.tensor(y),
                         "record_ids": rids,
                         "patient_ids": pids,
