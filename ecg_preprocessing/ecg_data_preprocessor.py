@@ -439,11 +439,12 @@ def prepare_dataset(
             all_pids.extend(pids)
             all_splits.extend([split] * len(y))
 
+        split_col = "fold" if folds is not None else "split"
         csv_path = os.path.join(out_dir, f"samples_{fs}hz.csv")
         with open(csv_path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(
-                ["split", "patient_id", "record_id", "label", "fs", "segment_index"]
+                [split_col, "patient_id", "record_id", "label", "fs", "segment_index"]
             )
             for i in range(len(all_y)):
                 writer.writerow(
