@@ -81,8 +81,9 @@ def setup_logger(log_path: str) -> logging.Logger:
     sh.setFormatter(fmt)
     logger.addHandler(sh)
 
-    return logger
     logger.info("Logger initialized successfully")
+    return logger
+    
 
 # ================= Fold Utilities =================
 
@@ -158,9 +159,11 @@ def resample_signal(x, fs_in, fs_out):
 
 def zscore(x):
     """
-    Apply z-score normalization per channel.
+    Apply z-score normalization per lead (channel).
     """
-    return ((x - x.mean()) / (x.std() + 1e-8)).astype(np.float32)
+    mean = x.mean(axis=1, keepdims=True)
+    std = x.std(axis=1, keepdims=True) + 1e-8
+    return ((x - mean) / std).astype(np.float32)
 
 
 def make_segments(x, seg_len):
@@ -170,6 +173,43 @@ def make_segments(x, seg_len):
     Returns: List of segments, each of length seg_len.
     """
     return [x[i:i + seg_len] for i in range(0, len(x) - seg_len + 1, seg_len)]
+
+# ================= Signal Quality Corrections =================
+#  Flatline leads  are zeroed per segment
+#  Extreme amplitude outliers are clipped to stabilize training
+
+
+def zero_flatline_leads(x, eps=1e-6, min_flat_fraction=0.5):
+    """
+    Zero leads that are flat for too long.
+    x: (C, T)
+    returns: (x_fixed, num_zeroed_leads)
+    """
+    C, T = x.shape
+    zeroed = 0
+
+    for c in range(C):
+        dx = np.abs(np.diff(x[c]))
+
+        signal_scale = np.std(x[c]) + 1e-8
+        flat_fraction = np.mean(dx < (eps * signal_scale))
+
+        if flat_fraction >= min_flat_fraction:
+            x[c] = 0.0
+            zeroed += 1
+
+    return x, zeroed
+
+
+def clip_extremes(x, clip_value=15.0):
+    """
+    Clip extreme amplitudes.
+    returns: (x_clipped, num_clipped_values)
+    """
+    before = np.abs(x) > clip_value
+    n_clipped = int(before.sum())
+    x = np.clip(x, -clip_value, clip_value)
+    return x, n_clipped
 
 
 # ================= Main Pipeline =================
@@ -277,18 +317,43 @@ def prepare_dataset(
         seg_len = fs * segment_seconds
         segments = []
 
+        records_with_clipping = 0
+        records_with_flatlines = 0
+
+
         
         # Segment creation
         
         for r in tqdm(records, desc=f"{fs}Hz"):
             # Clean → resample → transpose → zscore → transpose back
-            sig = zscore(resample_signal(clean_signal(r.signal), r.fs, fs).T)
+            sig = resample_signal(clean_signal(r.signal), r.fs, fs).T
+
+            sig, n_clipped = clip_extremes(sig, clip_value=15.0)
+            sig, n_zeroed = zero_flatline_leads(sig)
+
+            if n_clipped > 0:
+                records_with_clipping += 1
+
+            if n_zeroed > 0:
+                records_with_flatlines += 1
+
+            sig = zscore(sig)
+
 
             # Create fixed‑length segments
             for seg in make_segments(sig.T, seg_len):
                 segments.append((seg, r.label, r.record_id, r.patient_id))
 
         logger.info(f"[{fs}Hz] SEGMENTS CREATED: {len(segments)}")
+
+        logger.info(
+            f"[{fs}Hz] QC SUMMARY: "
+            f"{records_with_clipping}/{len(records)} records had extreme-value clipping, "
+            f"{records_with_flatlines}/{len(records)} records had at least 1 flatline lead"
+        )
+
+
+
 
         # Segment distribution BEFORE balancing
         seg_labels = [s[1] for s in segments]
@@ -300,10 +365,10 @@ def prepare_dataset(
         logger.info(f"  TOTAL segments  : {len(segments)}")
 
 
-    # ================= Global Segment Balancing =================
+        # ================= Global Segment Balancing =================
 
 
-      #  If No Folds(not selected) so Global Segment Balancing 
+        #  If No Folds(not selected) so Global Segment Balancing 
         if folds is None:
             afib = [s for s in segments if s[1] == 1]
             normal = [s for s in segments if s[1] == 0]
@@ -369,7 +434,7 @@ def prepare_dataset(
                 max_samples // folds if max_samples is not None else None
             )
 
-            # >>> ADDED: accumulators (logging only)
+            #  accumulators (logging only)
             fold_logs = []        # store fold messages
             total_kept = 0
             kept_afib = 0
@@ -406,20 +471,20 @@ def prepare_dataset(
                     [pids[i] for i in keep_idx],
                 )
 
-                # >>> ADDED: collect stats only
+                #  collect stats only
                 total_kept += 2 * n
                 kept_afib += n
                 kept_normal += n
                 fold_logs.append((fid, 2*n, n, n))
 
-            # >>> ADDED: GLOBAL summary (ONCE, before fold logs)
+            # GLOBAL summary (ONCE, before fold logs)
             logger.info(f"[{fs}Hz] SEGMENT BALANCING APPLIED")
             logger.info(f"  AFIB kept   : {kept_afib}")
             logger.info(f"  NORMAL kept : {kept_normal}")
             logger.info(f"  TOTAL kept  : {total_kept}")
             logger.info(f"  DROPPED     : {len(segments) - total_kept}")
 
-            # >>> EXISTING fold logs, now printed AFTER summary
+        
             for fid, tot, a, n in fold_logs:
                 logger.info(
                     f"[{fs}Hz] fold {fid}: segments={tot} (AFIB={a}, NORMAL={n})"
