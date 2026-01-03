@@ -160,6 +160,12 @@ def resample_signal(x, fs_in, fs_out):
 def zscore(x):
     """
     Apply z-score normalization per lead (channel).
+    Z-score normalization should:
+        * Normalize each channel/lead independently
+        * Use mean and standard deviation computed from that channel/lead
+        * Be applied per record (or per segment derived from that record)
+        * Remove amplitude bias while preserving morphology
+        * Improve convergence and inter-patient generalization
     """
     mean = x.mean(axis=1, keepdims=True)
     std = x.std(axis=1, keepdims=True) + 1e-8
