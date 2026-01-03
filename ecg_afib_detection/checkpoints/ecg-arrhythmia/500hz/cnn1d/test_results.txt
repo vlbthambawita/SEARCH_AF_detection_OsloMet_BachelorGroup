@@ -1,0 +1,44 @@
+FINAL TEST RESULTS (Best Fold = 5)
+============================================================
+
+CONFUSION MATRIX (TEST)
+------------------------------------------------------------
+[[1516  105]
+ [22   334]]
+
+METRICS
+------------------------------------------------------------
+Accuracy            : 0.9358
+F1-score            : 0.8403
+Recall (Sensitivity): 0.9382
+Specificity         : 0.9352
+Precision           : 0.7608
+
+PERFORMANCE
+------------------------------------------------------------
+Training time (total) : 44.23 minutes
+Inference time      : 3.96 seconds
+Throughput          : 499.50 samples/sec
+
+
+RUN INFORMATION
+============================================================
+Dataset            : ecg-arrhythmia
+Sampling rate      : 500 Hz
+Model              : cnn1d
+Best fold          : 5
+Device             : cpu
+
+DATASET SIZES
+------------------------------------------------------------
+Train samples      : 2244
+Validation samples : 568
+Test samples       : 1977
+
+TRAINING SETTINGS
+------------------------------------------------------------
+Epochs (max)       : 50
+Batch size         : 32
+Learning rate      : 0.001
+K-Folds            : 5
+Early stop patience: 10

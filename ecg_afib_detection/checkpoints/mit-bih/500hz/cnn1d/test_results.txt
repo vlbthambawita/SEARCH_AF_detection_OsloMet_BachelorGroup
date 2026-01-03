@@ -1,0 +1,44 @@
+FINAL TEST RESULTS (Best Fold = 3)
+============================================================
+
+CONFUSION MATRIX (TEST)
+------------------------------------------------------------
+[[662  0]
+ [11   327]]
+
+METRICS
+------------------------------------------------------------
+Accuracy            : 0.9890
+F1-score            : 0.9835
+Recall (Sensitivity): 0.9675
+Specificity         : 1.0000
+Precision           : 1.0000
+
+PERFORMANCE
+------------------------------------------------------------
+Training time (total) : 35.72 minutes
+Inference time      : 1.86 seconds
+Throughput          : 536.31 samples/sec
+
+
+RUN INFORMATION
+============================================================
+Dataset            : mit-bih
+Sampling rate      : 500 Hz
+Model              : cnn1d
+Best fold          : 3
+Device             : cpu
+
+DATASET SIZES
+------------------------------------------------------------
+Train samples      : 2928
+Validation samples : 648
+Test samples       : 1000
+
+TRAINING SETTINGS
+------------------------------------------------------------
+Epochs (max)       : 50
+Batch size         : 32
+Learning rate      : 0.001
+K-Folds            : 5
+Early stop patience: 10

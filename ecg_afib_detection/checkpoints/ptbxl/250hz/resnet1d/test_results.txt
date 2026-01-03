@@ -1,0 +1,44 @@
+FINAL TEST RESULTS (Best Fold = 5)
+============================================================
+
+CONFUSION MATRIX (TEST)
+------------------------------------------------------------
+[[1842  52]
+ [11   280]]
+
+METRICS
+------------------------------------------------------------
+Accuracy            : 0.9712
+F1-score            : 0.8989
+Recall (Sensitivity): 0.9622
+Specificity         : 0.9725
+Precision           : 0.8434
+
+PERFORMANCE
+------------------------------------------------------------
+Training time (total) : 30.83 minutes
+Inference time      : 3.32 seconds
+Throughput          : 658.15 samples/sec
+
+
+RUN INFORMATION
+============================================================
+Dataset            : ptbxl
+Sampling rate      : 250 Hz
+Model              : resnet1d
+Best fold          : 5
+Device             : cpu
+
+DATASET SIZES
+------------------------------------------------------------
+Train samples      : 1898
+Validation samples : 494
+Test samples       : 2185
+
+TRAINING SETTINGS
+------------------------------------------------------------
+Epochs (max)       : 50
+Batch size         : 32
+Learning rate      : 0.001
+K-Folds            : 5
+Early stop patience: 10

@@ -1,0 +1,21 @@
+BEST VALIDATION METRICS (PER FOLD)
+============================================================
+
+Fold               : fold_2
+Best epoch         : 26
+Validation loss    : 0.0720
+Validation F1      : 0.9824
+Validation Accuracy: 0.9825
+
+CONFUSION MATRIX (VAL)
+[[281 4]
+ [6 279]]
+
+DERIVED METRICS
+Recall (Sensitivity): 0.9789
+Specificity        : 0.9860
+Precision          : 0.9859
+
+RUN INFO
+------------------------------------------------------------
+Random seed        : 42

@@ -1,0 +1,44 @@
+FINAL TEST RESULTS (Best Fold = 3)
+============================================================
+
+CONFUSION MATRIX (TEST)
+------------------------------------------------------------
+[[1809  85]
+ [19   272]]
+
+METRICS
+------------------------------------------------------------
+Accuracy            : 0.9524
+F1-score            : 0.8395
+Recall (Sensitivity): 0.9347
+Specificity         : 0.9551
+Precision           : 0.7619
+
+PERFORMANCE
+------------------------------------------------------------
+Training time (total) : 48.60 minutes
+Inference time      : 4.53 seconds
+Throughput          : 482.37 samples/sec
+
+
+RUN INFORMATION
+============================================================
+Dataset            : ptbxl
+Sampling rate      : 500 Hz
+Model              : cnn1d
+Best fold          : 3
+Device             : cpu
+
+DATASET SIZES
+------------------------------------------------------------
+Train samples      : 1898
+Validation samples : 494
+Test samples       : 2185
+
+TRAINING SETTINGS
+------------------------------------------------------------
+Epochs (max)       : 50
+Batch size         : 32
+Learning rate      : 0.001
+K-Folds            : 5
+Early stop patience: 10
